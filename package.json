@@ -1,6 +1,6 @@
 {
-  "name": "fairy-server",
-  "description": "Backend of Fairy",
+  "name": "fairy-api",
+  "description": "API for Fairy",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
@@ -9,9 +9,11 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "body-parser": "^1.6.6",
     "express": "^4.8.5",
     "express-winston": "^0.2.6",
     "passport": "^0.2.0",
+    "passport-local": "^1.0.0",
     "winston": "^0.7.3"
   }
 }
