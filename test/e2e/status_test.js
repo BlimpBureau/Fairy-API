@@ -1,3 +1,5 @@
+"use strict";
+
 describe("/status GET", function() {
     it("should respond with status object", function(done) {
         test.get("/status", function(body) {

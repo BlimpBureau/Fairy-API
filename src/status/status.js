@@ -13,4 +13,4 @@ Status.prototype.init = function() {
             "website": "down"
         });
     });
-}
+};

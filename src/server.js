@@ -5,17 +5,19 @@ var bodyParser = require("body-parser");
 var winston = require("winston");
 var expressWinston = require("express-winston");
 var Auth = require("./auth.js");
+var usersController = require("./users/controller.js");
+var db = require("./db.js");
 
 var app = express();
 
 //parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 //parse application/vnd.api+json as json
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
 app.use(expressWinston.logger({
     transports: [
@@ -37,6 +39,33 @@ auth.init();
 //auth.useFacebook();
 auth.useLocal();
 
-app.listen(9999, function() {
-    console.log("Listening on port 9999...");
+app.post("/users", function(req, res) {
+    usersController.create(req.body.username, req.body.password, function(err, user) {
+        if(err) {
+            if(err.code === 1 || err.code === 2) {
+                res.status(409).send(err);
+            } else if(err.code === 3) {
+                res.status(400).send(err);
+            } else {
+                console.error(err);
+                res.status(500).send(err);
+            }
+
+            return;
+        }
+
+        res.status(201).send({
+            username: user.username
+        });
+    });
+});
+
+db.connect(function(err) {
+    if(err) {
+        throw err;
+    }
+
+    app.listen(9999, function() {
+        console.log("Listening on port 9999...");
+    });
 });

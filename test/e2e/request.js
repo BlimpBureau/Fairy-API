@@ -1,12 +1,11 @@
+"use strict";
+
 var request = require("request");
 var config = require("./config.js");
 var _ = require("lodash");
 
-//Make expect global.
-expect = require("chai").expect;
-
-//Global testing object.
-test = {};
+exports.post = _.partial(requestRoute, "post");
+exports.get = _.partial(requestRoute, "get");
 
 function requestRoute(type, route, options, callback) {
     if(_.isFunction(options)) {
@@ -22,7 +21,7 @@ function requestRoute(type, route, options, callback) {
             throw err;
         }
 
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.be.within(200, 299);
 
         var data = JSON.parse(body);
         expect(data).to.be.an("object");
@@ -30,6 +29,3 @@ function requestRoute(type, route, options, callback) {
         callback(data);
     });
 }
-
-test.post = _.partial(requestRoute, "post");
-test.get = _.partial(requestRoute, "get");

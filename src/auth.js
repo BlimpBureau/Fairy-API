@@ -14,7 +14,7 @@ function Auth(app) {
 
 Auth.prototype.init = function() {
     this.app.use(passport.initialize());
-}
+};
 
 Auth.prototype.useFacebook = function() {
     if(!authConfig.isFacebookSet()) {
@@ -29,7 +29,7 @@ Auth.prototype.useFacebook = function() {
     }, function(accessToken, refreshToken, profile, done) {
         console.log(accessToken, refreshToken, profile);
         done(null, {
-            access_token: accessToken
+            "access_token": accessToken
         });
     }));
 
@@ -42,9 +42,10 @@ Auth.prototype.useFacebook = function() {
         session: false,
         failureRedirect: "/login"
     }), function(req, res) {
+        /*jshint camelcase: false */
         res.send("access_token: " + req.user.access_token);
     });
-}
+};
 
 Auth.prototype.useLocal = function() {
     passport.use(new LocalStrategy(function(username, password, done) {
@@ -53,7 +54,7 @@ Auth.prototype.useLocal = function() {
             username: username,
             password: password
         });
-    }))
+    }));
 
     this.app.post("/auth/local", passport.authenticate("local", {
         session: false
@@ -62,4 +63,4 @@ Auth.prototype.useLocal = function() {
             "access_token": "todo"
         });
     });
-}
+};

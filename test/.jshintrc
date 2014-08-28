@@ -15,6 +15,11 @@
     "globalstrict": true,
     "browser": false,
     "node": true,
+    "expr": true,
     "globals": {
+        "describe": false,
+        "it": false,
+        "test": false,
+        "expect": false
     }
 }
