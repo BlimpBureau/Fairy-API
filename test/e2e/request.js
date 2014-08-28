@@ -16,7 +16,10 @@ function requestRoute(type, route, callback) {
 
         expect(res.statusCode).to.equal(200);
 
-        callback(JSON.parse(body));
+        var data = JSON.parse(body);
+        expect(data).to.be.an("object");
+
+        callback(data);
     });
 }
 
