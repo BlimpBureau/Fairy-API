@@ -28,6 +28,9 @@ app.use(expressWinston.logger({
     msg: "HTTP {{req.method}} {{req.url}}" // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
 }));
 
+var Status = require("./status/status.js");
+var status = new Status(app);
+status.init();
 
 var auth = new Auth(app);
 auth.init();

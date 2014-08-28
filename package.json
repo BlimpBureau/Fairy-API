@@ -4,9 +4,15 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "lodash": "^2.4.1",
+    "mocha": "^1.21.4",
+    "request": "^2.40.0"
+  },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha -r test/e2e/request.js -R spec test/**/*_test.js"
   },
   "dependencies": {
     "body-parser": "^1.6.6",
