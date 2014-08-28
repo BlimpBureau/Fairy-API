@@ -8,8 +8,16 @@ expect = require("chai").expect;
 //Global testing object.
 test = {};
 
-function requestRoute(type, route, callback) {
-    request[type](config.baseUrl + route, function(err, res, body) {
+function requestRoute(type, route, options, callback) {
+    if(_.isFunction(options)) {
+        callback = options;
+        options = null;
+    }
+
+    options = options || {};
+    options.uri = config.baseUrl + route;
+
+    request[type](options, function(err, res, body) {
         if(err) {
             throw err;
         }

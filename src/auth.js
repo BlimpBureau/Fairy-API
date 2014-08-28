@@ -58,6 +58,8 @@ Auth.prototype.useLocal = function() {
     this.app.post("/auth/local", passport.authenticate("local", {
         session: false
     }), function(req, res) {
-        res.send(req.user);
+        res.send({
+            "access_token": "todo"
+        });
     });
 }
