@@ -1,0 +1,17 @@
+{
+  "name": "fairy-server",
+  "description": "Backend of Fairy",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.8.5",
+    "express-winston": "^0.2.6",
+    "passport": "^0.2.0",
+    "winston": "^0.7.3"
+  }
+}
