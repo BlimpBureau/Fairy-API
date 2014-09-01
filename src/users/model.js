@@ -2,6 +2,8 @@
 
 var mongoose = require("mongoose");
 var bcrypt = require("bcrypt-nodejs");
+var accessToken = require("../access-token.js");
+var _ = require("lodash");
 
 var UserSchema = new mongoose.Schema({
     username: {
@@ -46,10 +48,24 @@ UserSchema.pre("save", function(callback) {
     });
 });
 
-UserSchema.methods.passwordMatches = function (password, callback) {
+UserSchema.methods.passwordMatches = function(password, callback) {
     bcrypt.compare(password, this.password, function(err, isMatch) {
         if(err) { return callback(err); }
         callback(null, isMatch);
+    });
+};
+
+UserSchema.methods.generateAccessToken = function(length, callback) {
+    if(!callback) {
+        callback = length;
+        length = null;
+    }
+
+    var that = this;
+
+    accessToken.generate(length, function(token) {
+        that.accessTokens.unshift(token);
+        that.save(_.partialRight(callback, token));
     });
 };
 

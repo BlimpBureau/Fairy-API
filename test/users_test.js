@@ -68,6 +68,39 @@ describe("User Model", function() {
             });
         });
     });
+
+    describe("generateAccessToken", function() {
+        it("should generate access token and save it to accessTokens array of User model", function(done) {
+            var user = new User({
+                username: "a",
+                password: "b"
+            });
+
+            user.save(function(err) {
+                expect(err).to.be.falsy;
+
+                user.generateAccessToken(20, function(err, token) {
+                    expect(err).to.be.falsy;
+                    expect(token).to.be.a("string");
+                    expect(token).to.be.ok;
+                    expect(token).to.have.length(20);
+
+                    var firstToken = token;
+
+                    user.generateAccessToken(256, function(err, token) {
+                        expect(err).to.be.falsy;
+                        expect(token).to.be.a("string");
+                        expect(token).to.be.ok;
+                        expect(token).to.have.length(256);
+
+                        expect(user.accessTokens.toObject()).to.eql([token, firstToken]);
+
+                        done();
+                    });
+                });
+            });
+        });
+    });
 });
 
 describe("Users Controller", function() {
