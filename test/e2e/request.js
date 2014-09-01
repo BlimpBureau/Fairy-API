@@ -21,6 +21,10 @@ function requestRoute(type, route, options, callback) {
             throw err;
         }
 
+        if(res.statusCode < 200 || res.statusCode >= 300) {
+            console.error(body);
+        }
+
         expect(res.statusCode).to.be.within(200, 299);
 
         var data = JSON.parse(body);

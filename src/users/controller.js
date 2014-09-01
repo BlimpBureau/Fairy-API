@@ -25,3 +25,9 @@ exports.create = function(username, password, callback) {
         callback(null, user);
     });
 };
+
+exports.get = function(username, callback) {
+    User.findOne({
+        username: username
+    }, callback);
+};

@@ -5,6 +5,7 @@ var authConfig = require("./authConfig.js");
 var passport = require("passport");
 var FacebookStrategy = require("passport-facebook").Strategy;
 var LocalStrategy = require("passport-local").Strategy;
+var usersController = require("./users/controller.js");
 
 module.exports = exports = Auth;
 
@@ -29,7 +30,7 @@ Auth.prototype.useFacebook = function() {
     }, function(accessToken, refreshToken, profile, done) {
         console.log(accessToken, refreshToken, profile);
         done(null, {
-            "access_token": accessToken
+            accessToken: accessToken
         });
     }));
 
@@ -42,17 +43,33 @@ Auth.prototype.useFacebook = function() {
         session: false,
         failureRedirect: "/login"
     }), function(req, res) {
-        /*jshint camelcase: false */
-        res.send("access_token: " + req.user.access_token);
+        res.send("access_token: " + req.user.accessToken);
     });
 };
 
 Auth.prototype.useLocal = function() {
     passport.use(new LocalStrategy(function(username, password, done) {
-        console.log(username, password);
-        return done(null, {
-            username: username,
-            password: password
+        usersController.get(username, function(err, user) {
+            if(err) {
+                return done(err);
+            }
+
+            if(!user) {
+                return done(null, false);
+            }
+
+            user.passwordMatches(password, function(err, isMatch) {
+                if(err) {
+                    return done(err);
+                }
+
+                if(!isMatch) {
+                    return done(null, false);
+                }
+
+                //Password matches.
+                return done(null, user);
+            });
         });
     }));
 

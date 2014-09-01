@@ -12,6 +12,9 @@ var UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    accessTokens: {
+        type: [String]
     }
 });
 
@@ -19,6 +22,8 @@ var UserSchema = new mongoose.Schema({
 //so the password can be rehashed and salted.
 UserSchema.pre("save", function(callback) {
     var that = this;
+
+    this.accessTokens = this.accessTokens || [];
 
     if(!that.isModified("password")) {
         return callback();
@@ -40,5 +45,12 @@ UserSchema.pre("save", function(callback) {
         });
     });
 });
+
+UserSchema.methods.passwordMatches = function (password, callback) {
+    bcrypt.compare(password, this.password, function(err, isMatch) {
+        if(err) { return callback(err); }
+        callback(null, isMatch);
+    });
+};
 
 module.exports = exports = mongoose.model("User", UserSchema);
