@@ -2,6 +2,7 @@
 
 var mongoose = require("mongoose");
 var mockgoose = require("mockgoose");
+var moment = require("moment");
 
 mockgoose(mongoose);
 
@@ -48,28 +49,25 @@ describe("User Model", function() {
                 });
             });
         });
-
-        it("should create accessTokens array if not already existing", function() {
-            var user = new User({
-                username: "a",
-                password: "b"
-            });
-
-            user.save(function(err) {
-                expect(err).to.be.falsy;
-                expect(user.accessTokens).to.be.empty;
-
-                user.accessTokens.push("token");
-
-                user.save(function(err) {
-                    expect(err).to.be.falsy;
-                    expect(user.accessTokens.toObject()).to.eql(["token"]);
-                });
-            });
-        });
     });
 
     describe("generateAccessToken", function() {
+        function validateTokenObject(object, length, expireDays) {
+            expect(object.token).to.be.a("string");
+            expect(object.token).to.be.ok;
+
+            if(length) {
+                expect(object.token).to.have.length(length);
+            }
+
+            expect(object.expires).to.be.ok;
+            expect(object.expires).to.be.above(moment().valueOf());
+
+            if(expireDays) {
+                expect(moment(object.expires).format("YYYY-MM-DD")).to.be.equal(moment().add(expireDays, "days").format("YYYY-MM-DD"));
+            }
+        }
+
         it("should generate access token and save it to accessTokens array of User model", function(done) {
             var user = new User({
                 username: "a",
@@ -79,23 +77,29 @@ describe("User Model", function() {
             user.save(function(err) {
                 expect(err).to.be.falsy;
 
-                user.generateAccessToken(20, function(err, token) {
+                user.generateAccessToken(function(err, tokenObject) {
                     expect(err).to.be.falsy;
-                    expect(token).to.be.a("string");
-                    expect(token).to.be.ok;
-                    expect(token).to.have.length(20);
+                    validateTokenObject(tokenObject);
 
-                    var firstToken = token;
+                    var firstToken = tokenObject;
 
-                    user.generateAccessToken(256, function(err, token) {
+                    var length = 256;
+                    user.generateAccessToken(length, function(err, tokenObject) {
                         expect(err).to.be.falsy;
-                        expect(token).to.be.a("string");
-                        expect(token).to.be.ok;
-                        expect(token).to.have.length(256);
+                        validateTokenObject(tokenObject, length);
 
-                        expect(user.accessTokens.toObject()).to.eql([token, firstToken]);
+                        var secondToken = tokenObject;
 
-                        done();
+                        length = 10;
+                        var expireDays = 3;
+                        user.generateAccessToken(length, expireDays, function(err, tokenObject) {
+                            expect(err).to.be.falsy;
+                            validateTokenObject(tokenObject, length, expireDays);
+
+                            expect(user.accessTokens.toObject()).to.eql([tokenObject, secondToken, firstToken]);
+
+                            done();
+                        });
                     });
                 });
             });

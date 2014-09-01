@@ -28,6 +28,7 @@
     "body-parser": "^1.6.6",
     "express": "^4.8.5",
     "express-winston": "^0.2.6",
+    "moment": "^2.8.2",
     "mongoose": "^3.8.15",
     "passport": "^0.2.0",
     "passport-local": "^1.0.0",
