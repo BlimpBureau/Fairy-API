@@ -1,6 +1,6 @@
 "use strict";
 
-var authConfig = require("./authConfig.js");
+var authConfig = require("./auth-config.js");
 
 var passport = require("passport");
 var FacebookStrategy = require("passport-facebook").Strategy;
@@ -76,8 +76,18 @@ Auth.prototype.useLocal = function() {
     this.app.post("/auth/local", passport.authenticate("local", {
         session: false
     }), function(req, res) {
-        res.send({
-            "access_token": "todo"
+        var tokenLength = authConfig.local.getAccessTokenLength();
+        var expireDays = authConfig.local.getAccessTokenExpireDays();
+        req.user.generateAccessToken(tokenLength, expireDays, function(err, tokenObject) {
+            if(err) {
+                console.error(err);
+                return res.status(500).send(err);
+            }
+
+            res.send({
+                "access_token": tokenObject.token,
+                "access_token_expires": tokenObject.expires
+            });
         });
     });
 };
