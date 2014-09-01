@@ -4,13 +4,7 @@ var mongoose = require("mongoose");
 var bcrypt = require("bcrypt-nodejs");
 var accessToken = require("../access-token.js");
 var moment = require("moment");
-
-var AccessTokenSchema = new mongoose.Schema({
-    token: String,
-    expires: Number
-}, {
-    _id: false
-});
+var _ = require("lodash");
 
 var UserSchema = new mongoose.Schema({
     username: {
@@ -23,7 +17,11 @@ var UserSchema = new mongoose.Schema({
         required: true
     },
     accessTokens: {
-        type: [AccessTokenSchema],
+        type: [{
+            _id: false,
+            token: String,
+            expires: Number
+        }],
         default: []
     }
 });
@@ -95,6 +93,25 @@ UserSchema.methods.generateAccessToken = function(length, expireDays, callback) 
             callback(null, tokenObject);
         });
     });
+};
+
+UserSchema.methods.validAccessToken = function(token, callback) {
+    var foundObject;
+
+    _.forEach(this.accessTokens, function(tokenObject) {
+        if(token === tokenObject.token) {
+            foundObject = tokenObject;
+            return false;
+        }
+    });
+
+    if(foundObject) {
+        if(moment(foundObject.expires).valueOf() > moment().valueOf()) {
+            return callback(true);
+        }
+    }
+
+    callback(false);
 };
 
 module.exports = exports = mongoose.model("User", UserSchema);
