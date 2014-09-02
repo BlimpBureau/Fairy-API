@@ -1,9 +1,8 @@
 "use strict";
 
 var express = require("express");
+var passport = require("passport");
 var bodyParser = require("body-parser");
-var Auth = require("./auth.js");
-var usersController = require("./users/controller.js");
 var db = require("./db.js");
 var logging = require("./logging.js");
 
@@ -18,37 +17,14 @@ app.use(bodyParser.json());
 //parse application/vnd.api+json as json
 app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
+app.use(passport.initialize());
+
 logging.init(app);
 
-var Status = require("./status/status.js");
-var status = new Status(app);
-status.init();
-
-var auth = new Auth(app);
-auth.init();
-//auth.useFacebook();
-auth.useLocal();
-
-app.post("/users", function(req, res) {
-    usersController.create(req.body.username, req.body.password, function(err, user) {
-        if(err) {
-            if(err.code === 1 || err.code === 2) {
-                res.status(409).send(err);
-            } else if(err.code === 3) {
-                res.status(400).send(err);
-            } else {
-                console.error(err);
-                res.status(500).send(err);
-            }
-
-            return;
-        }
-
-        res.status(201).send({
-            username: user.username
-        });
-    });
-});
+require("./routes/status.js")(app);
+require("./routes/users.js")(app);
+//require("./routes/auth-facebook.js")(app);
+require("./routes/auth-local.js")(app);
 
 db.connect(function(err) {
     if(err) {
