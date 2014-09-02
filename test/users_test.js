@@ -124,27 +124,31 @@ describe("User Model", function() {
     describe("validAccessToken", function() {
         it("should find access tokens that exists and make sure they have not expired", function(done) {
             createDummyUser(function(user) {
-                user.validAccessToken("13123", function(valid) {
+                user.validAccessToken("13123", function(valid, reason) {
                     expect(valid).to.equal(false);
+                    expect(reason).to.equal(1);
                 });
 
                 user.generateAccessToken(function(err, tokenObject) {
                     errcheck(err);
 
-                    user.validAccessToken(tokenObject.token, function(valid) {
+                    user.validAccessToken(tokenObject.token, function(valid, reason) {
                         expect(valid).to.equal(true);
+                        expect(reason).to.be.falsy;
                     });
 
                     user.generateAccessToken(20, 1, function(err, tokenObject) {
                         errcheck(err);
 
-                        user.validAccessToken(tokenObject.token, function(valid) {
+                        user.validAccessToken(tokenObject.token, function(valid, reason) {
                             expect(valid).to.equal(true);
+                            expect(reason).to.be.falsy;
 
                             user.accessTokens[0].expires = moment().subtract(2, "days").valueOf();
 
-                            user.validAccessToken(tokenObject.token, function(valid) {
+                            user.validAccessToken(tokenObject.token, function(valid, reason) {
                                 expect(valid).to.equal(false);
+                                expect(reason).to.equal(2);
                                 done();
                             });
                         });

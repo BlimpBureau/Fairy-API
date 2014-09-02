@@ -108,10 +108,12 @@ UserSchema.methods.validAccessToken = function(token, callback) {
     if(foundObject) {
         if(moment(foundObject.expires).valueOf() > moment().valueOf()) {
             return callback(true);
+        } else {
+            return callback(false, 2);
         }
     }
 
-    callback(false);
+    callback(false, 1);
 };
 
 module.exports = exports = mongoose.model("User", UserSchema);
