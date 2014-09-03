@@ -5,7 +5,7 @@ var passport = require("passport");
 var FacebookStrategy = require("passport-facebook").Strategy;
 var LocalStrategy = require("passport-local").Strategy;
 var BearerStrategy = require("passport-http-bearer").Strategy;
-var usersController = require("./users/controller.js");
+var usersController = require("./users/users-controller.js");
 
 exports.initApp = function(app) {
     app.use(passport.initialize());

@@ -7,8 +7,8 @@ var _ = require("lodash");
 
 mockgoose(mongoose);
 
-var User = require("../src/users/model.js");
-var usersController = require("../src/users/controller.js");
+var User = require("../src/users/users-model.js");
+var usersController = require("../src/users/users-controller.js");
 
 function errcheck(err) {
     if(err) {
