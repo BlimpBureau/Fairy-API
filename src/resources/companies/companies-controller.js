@@ -2,24 +2,19 @@
 
 var Company = require("./companies-model.js");
 
-exports.create = function(name, orgNumber, admin, callback) {
+exports.create = function(name, orgNumber, type, admin, callback) {
     var company;
 
-    try {
-        company = new Company({
-            name: name,
-            organisationNumber: orgNumber,
-            admins: [admin]
-        });
-    } catch(e) {
-        return callback(new Error("Invalid arguments"));
-    }
+    company = new Company({
+        name: name,
+        organisationNumber: orgNumber,
+        type: type,
+        admins: [admin]
+    });
 
     company.save(function(err) {
         if(err) {
-            return callback({
-                error: "internal_server_error"
-            });
+            return callback(err);
         }
 
         return callback(null, company);

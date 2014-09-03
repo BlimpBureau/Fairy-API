@@ -10,12 +10,6 @@ mockgoose(mongoose);
 var User = require("../src/resources/users/users-model.js");
 var usersController = require("../src/resources/users/users-controller.js");
 
-function errcheck(err) {
-    if(err) {
-        throw err;
-    }
-}
-
 function createDummyUser(username, callback) {
     if(!callback) {
         callback = username;
