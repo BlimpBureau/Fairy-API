@@ -48,7 +48,6 @@ exports.initFacebook = function() {
         clientSecret: authConfig.facebook.getAppSecret(),
         callbackURL: authConfig.facebook.getAppCallbackUrl()
     }, function(accessToken, refreshToken, profile, done) {
-        console.log(accessToken, refreshToken, profile);
         done(null, {
             accessToken: accessToken
         });

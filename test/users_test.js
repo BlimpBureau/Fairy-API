@@ -246,4 +246,30 @@ describe("Users Controller", function() {
             });
         });
     });
+
+    describe("findByIds", function() {
+        var johndoe;
+        var snowman;
+
+        beforeEach(function(done) {
+            createDummyUser("snowman", function(user) {
+                snowman = user;
+                createDummyUser("johndoe", function(user) {
+                    johndoe = user;
+                    user.generateAccessToken(function() {
+                        user.generateAccessToken(done);
+                    });
+                });
+            });
+        });
+
+        it("should be able to find users by given ids", function(done) {
+            usersController.findByIds([johndoe.id, snowman.id], function(err, users) {
+                errcheck(err);
+                expect(users).to.deep.include.members([johndoe.toObject(), snowman.toObject()]);
+                expect(users.length).to.equal(2);
+                done();
+            });
+        });
+    });
 });

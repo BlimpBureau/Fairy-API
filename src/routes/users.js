@@ -26,7 +26,8 @@ module.exports = function(app) {
             }
 
             res.status(201).send({
-                username: user.username
+                username: user.username,
+                id: user._id
             });
         });
     });
@@ -39,7 +40,8 @@ module.exports = function(app) {
         }
 
         res.send({
-            username: req.user.username
+            username: req.user.username,
+            id: req.user.id
         });
     });
 };

@@ -61,8 +61,6 @@ describe("Companies Controller", function() {
 
         it("should not allow to duplicates of name or organisation number", function(done) {
             create("Macrohard inc", 1337, mongoose.Types.ObjectId(), function() {
-                console.log("hej");
-
                 companiesController.create("Test", 1337, "EF", mongoose.Types.ObjectId(), function(err, company) {
                     expect(err).to.be.ok;
                     expect(company).to.be.falsy;

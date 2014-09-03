@@ -23,6 +23,7 @@
         "expect": false,
         "beforeEach": false,
         "before": false,
-        "errcheck": false
+        "errcheck": false,
+        "login": false
     }
 }

@@ -37,3 +37,17 @@ exports.findByAccessToken = function(token, callback) {
         "accessTokens.token": token
     }, callback);
 };
+
+exports.findByIds = function(ids, callback) {
+    User.find({
+        _id: {
+            $in: ids
+        }
+    }).lean().exec(function(err, users) {
+        if(err) {
+            return callback(err);
+        }
+
+        callback(null, users);
+    });
+};

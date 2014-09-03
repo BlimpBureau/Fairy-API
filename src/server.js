@@ -25,6 +25,7 @@ auth.initApp(app);
 
 require("./routes/status.js")(app);
 require("./routes/users.js")(app);
+require("./routes/companies.js")(app);
 //require("./routes/auth-facebook.js")(app);
 require("./routes/auth-local.js")(app);
 
