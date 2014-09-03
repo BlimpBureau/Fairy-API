@@ -2,7 +2,7 @@
 
 var mongoose = require("mongoose");
 var bcrypt = require("bcrypt-nodejs");
-var accessToken = require("../access-token.js");
+var accessToken = require("../../access-token.js");
 var moment = require("moment");
 var _ = require("lodash");
 

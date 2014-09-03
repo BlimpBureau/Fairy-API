@@ -1,6 +1,6 @@
 "use strict";
 
-var usersController = require("../users/users-controller.js");
+var usersController = require("../resources/users/users-controller.js");
 var passport = require("passport");
 
 module.exports = function(app) {
