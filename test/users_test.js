@@ -3,11 +3,12 @@
 var mongoose = require("mongoose");
 var mockgoose = require("mockgoose");
 var moment = require("moment");
+var _ = require("lodash");
 
 mockgoose(mongoose);
 
 var User = require("../src/users/model.js");
-var userController = require("../src/users/controller.js");
+var usersController = require("../src/users/controller.js");
 
 function errcheck(err) {
     if(err) {
@@ -15,9 +16,14 @@ function errcheck(err) {
     }
 }
 
-function createDummyUser(callback) {
+function createDummyUser(username, callback) {
+    if(!callback) {
+        callback = username;
+        username = null;
+    }
+
     var user = new User({
-        username: "a",
+        username: username || "a",
         password: "b"
     });
 
@@ -160,9 +166,11 @@ describe("User Model", function() {
 });
 
 describe("Users Controller", function() {
+    beforeEach(_.partial(mockgoose.reset, "User"));
+
     describe("create", function() {
         it("should be able to create an user", function(done) {
-            userController.create("johndoe", "mrmittens", function(err, user) {
+            usersController.create("johndoe", "mrmittens", function(err, user) {
                 if(err) {
                     throw err;
                 }
@@ -173,17 +181,25 @@ describe("Users Controller", function() {
         });
 
         it("should not be able to create two users with the same name", function(done) {
-            userController.create("johndoe", "different", function(err, user) {
-                expect(err).to.be.ok;
-                expect(user).to.not.be.ok;
-                done();
+            createDummyUser("johndoe", function() {
+                usersController.create("johndoe", "different", function(err, user) {
+                    expect(err).to.be.ok;
+                    expect(user).to.not.be.ok;
+                    done();
+                });    
             });
         });
     });
 
-    describe("get", function() {
-        it("should be able to get users by username", function(done) {
-            userController.get("johndoe", function(err, user) {
+    describe("findByUsername", function() {
+        beforeEach(function(done) {
+            createDummyUser("johndoe", function() {
+                done();
+            });
+        });
+
+        it("should be able to find users by username", function(done) {
+            usersController.findByUsername("johndoe", function(err, user) {
                 errcheck(err);
                 validateJohnDoe(user);
                 done();
@@ -191,7 +207,45 @@ describe("Users Controller", function() {
         });
 
         it("should behave when not finding users", function(done) {
-            userController.get("snowman", function(err, user) {
+            usersController.findByUsername("snowman", function(err, user) {
+                errcheck(err);
+                expect(user).to.be.falsy;
+                done();
+            });
+        });
+    });
+
+    describe("findByAccessToken", function() {
+        var johndoe;
+        var snowman;
+
+        beforeEach(function(done) {
+            createDummyUser("snowman", function(user) {
+                snowman = user;
+                createDummyUser("johndoe", function(user) {
+                    johndoe = user;
+                    user.generateAccessToken(function() {
+                        user.generateAccessToken(done);
+                    });
+                });
+            });
+        });
+
+        it("should be able to find user by access token", function(done) {
+            usersController.findByAccessToken(johndoe.accessTokens[0].token, function(err, user) {
+                errcheck(err);
+                expect(user.toObject()).to.eql(johndoe.toObject());
+
+                usersController.findByAccessToken(johndoe.accessTokens[1].token, function(err, user) {
+                    errcheck(err);
+                    expect(user.toObject()).to.eql(johndoe.toObject());
+                    done();
+                });
+            });
+        });
+
+        it("should behave when not finding users", function(done) {
+            usersController.findByAccessToken("awdawdawd", function(err, user) {
                 errcheck(err);
                 expect(user).to.be.falsy;
                 done();

@@ -1,10 +1,10 @@
 "use strict";
 
 var express = require("express");
-var passport = require("passport");
 var bodyParser = require("body-parser");
 var db = require("./db.js");
 var logging = require("./logging.js");
+var auth = require("./auth.js");
 
 var app = express();
 
@@ -17,9 +17,11 @@ app.use(bodyParser.json());
 //parse application/vnd.api+json as json
 app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
-app.use(passport.initialize());
-
 logging.init(app);
+
+auth.initAccessToken();
+auth.initLocal();
+auth.initApp(app);
 
 require("./routes/status.js")(app);
 require("./routes/users.js")(app);

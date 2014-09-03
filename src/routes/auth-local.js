@@ -2,35 +2,8 @@
 
 var authConfig = require("../auth-config.js");
 var passport = require("passport");
-var LocalStrategy = require("passport-local").Strategy;
-var usersController = require("../users/controller.js");
 
 module.exports = function(app) {
-    passport.use(new LocalStrategy(function(username, password, done) {
-        usersController.get(username, function(err, user) {
-            if(err) {
-                return done(err);
-            }
-
-            if(!user) {
-                return done(null, false);
-            }
-
-            user.passwordMatches(password, function(err, isMatch) {
-                if(err) {
-                    return done(err);
-                }
-
-                if(!isMatch) {
-                    return done(null, false);
-                }
-
-                //Password matches.
-                return done(null, user);
-            });
-        });
-    }));
-
     app.post("/auth/local", passport.authenticate("local", {
         session: false
     }), function(req, res) {

@@ -26,8 +26,14 @@ exports.create = function(username, password, callback) {
     });
 };
 
-exports.get = function(username, callback) {
+exports.findByUsername = function(username, callback) {
     User.findOne({
         username: username
+    }, callback);
+};
+
+exports.findByAccessToken = function(token, callback) {
+    User.findOne({
+        "accessTokens.token": token
     }, callback);
 };
