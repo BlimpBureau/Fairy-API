@@ -16,7 +16,7 @@ describe("/users POST", function() {
         test.post("/users", {
             form: {
                 username: "jane",
-                password: "sunshine"   
+                password: "sunshine"
             }
         }, function(data) {
             expect(data).to.eql({

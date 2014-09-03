@@ -29,7 +29,7 @@ exports.connect = function(callback) {
                     return callback(err);
                 }
 
-                console.log("Dropped successfully.");
+                console.log("Database dropped successfully.");
                 callback();
             });
         } else {

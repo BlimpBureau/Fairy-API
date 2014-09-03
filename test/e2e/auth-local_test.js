@@ -7,7 +7,7 @@ describe("/auth/local POST", function() {
         test.post("/users", {
             form: {
                 username: "johndoe",
-                password: "mylittlepony"   
+                password: "mylittlepony"
             }
         }, function() {
             test.post("/auth/local", {
@@ -22,8 +22,7 @@ describe("/auth/local POST", function() {
                 expect(body.access_token_expires).to.be.a("number");
                 expect(moment(body.access_token_expires).valueOf()).to.be.above(moment().valueOf());
                 done();
-            });    
+            });
         });
     });
 });
-

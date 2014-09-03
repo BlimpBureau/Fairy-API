@@ -18,6 +18,13 @@ module.exports = function(grunt) {
             },
             src: ["Gruntfile.js", "src/**/*.js"]
         },
+        jscs: {
+            options: {
+                config: ".jscs.json"
+            },
+            src: ["Gruntfile.js", "src/**/*.js"],
+            test: ["test/**/*.js"]
+        },
         mochaTest: {
             options: {
                 reporter: "spec"
@@ -48,5 +55,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask("default", "test");
 
-    grunt.registerTask("test", ["jshint", "mochaTest:unit", "express:test", "mochaTest:e2e", "express:test:stop"]);
+    grunt.registerTask("test", ["test:style", "test:unit", "test:e2e"]);
+
+    grunt.registerTask("test:style", ["jshint", "jscs"]);
+    grunt.registerTask("test:unit", ["mochaTest:unit"]);
+    grunt.registerTask("test:e2e", ["express:test", "mochaTest:e2e", "express:test:stop"]);
 };

@@ -8,12 +8,18 @@ module.exports = function(app) {
         usersController.create(req.body.username, req.body.password, function(err, user) {
             if(err) {
                 if(err.code === 1 || err.code === 2) {
-                    res.status(409).send(err);
+                    res.status(409).send({
+                        error: "incorrect_client_credentials"
+                    });
                 } else if(err.code === 3) {
-                    res.status(400).send(err);
+                    res.status(400).send({
+                        error: "username_exists"
+                    });
                 } else {
                     console.error(err);
-                    res.status(500).send(err);
+                    res.status(500).send({
+                        error: "internal_server_error"
+                    });
                 }
 
                 return;

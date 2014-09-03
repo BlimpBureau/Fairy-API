@@ -186,7 +186,7 @@ describe("Users Controller", function() {
                     expect(err).to.be.ok;
                     expect(user).to.not.be.ok;
                     done();
-                });    
+                });
             });
         });
     });
