@@ -43,4 +43,30 @@ module.exports = function(app) {
             });
         });
     });
+
+    app.get("/companies/:id", passport.authenticate("bearer", {
+        session: false
+    }), function(req, res) {
+        var user = req.user;
+
+        companiesController.findById(req.body.id, function(err, company) {
+            if(err) {
+                return res.status(500).send({
+                    error: "internal_server_error"
+                });
+            }
+
+            if(!company) {
+                return res.status(404).send({
+                    error: "not_found"
+                });
+            }
+
+            if(!company.isUserAdmin(user._id)) {
+                return res.status(401).send("Not aurotharized");
+            }
+
+            res.send(company.toObject());
+        });
+    });
 };
