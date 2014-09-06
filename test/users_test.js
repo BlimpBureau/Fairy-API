@@ -157,6 +157,31 @@ describe("User Model", function() {
             });
         });
     });
+
+    describe("toObject", function() {
+        it("should return an object with model information only", function(done) {
+            var user = new User({
+                username: "jane",
+                password: "fluffs",
+            });
+
+            expect(user.toObject()).to.eql({
+                username: user.username,
+                password: user.password,
+                accessTokens: []
+            });
+
+            user.generateAccessToken(20, function(err, tokenObject) {
+                errcheck(err);
+                expect(user.toObject()).to.eql({
+                    username: user.username,
+                    password: user.password,
+                    accessTokens: [tokenObject]
+                });
+                done();
+            });
+        });
+    });
 });
 
 describe("Users Controller", function() {
@@ -266,8 +291,9 @@ describe("Users Controller", function() {
         it("should be able to find users by given ids", function(done) {
             usersController.findByIds([johndoe.id, snowman.id], function(err, users) {
                 errcheck(err);
-                expect(users).to.deep.include.members([johndoe.toObject(), snowman.toObject()]);
                 expect(users.length).to.equal(2);
+                expect(users[0].equals(snowman));
+                expect(users[1].equals(johndoe));
                 done();
             });
         });

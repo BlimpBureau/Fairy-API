@@ -5,6 +5,7 @@ var bcrypt = require("bcrypt-nodejs");
 var accessToken = require("../../access-token.js");
 var moment = require("moment");
 var _ = require("lodash");
+var utils = require("../../utils-model.js");
 
 var UserSchema = new mongoose.Schema({
     username: {
@@ -24,6 +25,15 @@ var UserSchema = new mongoose.Schema({
         }],
         default: []
     }
+});
+
+utils.setToObjectTransform(UserSchema, function(user, ret) {
+    delete ret._id;
+    delete ret.__v;
+
+    // ret.id = user._id.toString();
+
+    return ret;
 });
 
 //Execute before each user.save() call, so that password changes can be detected

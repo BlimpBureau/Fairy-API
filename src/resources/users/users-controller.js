@@ -43,7 +43,7 @@ exports.findByIds = function(ids, callback) {
         _id: {
             $in: ids
         }
-    }).lean().exec(function(err, users) {
+    }).exec(function(err, users) {
         if(err) {
             return callback(err);
         }

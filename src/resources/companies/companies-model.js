@@ -2,6 +2,7 @@
 
 var mongoose = require("mongoose");
 var _ = require("lodash");
+var utils = require("../../utils-model.js");
 
 var CompanySchema = new mongoose.Schema({
     name: {
@@ -27,8 +28,7 @@ CompanySchema.methods.isUserAdmin = function(userId) {
     });
 };
 
-CompanySchema.options.toObject = CompanySchema.options.toObject || {};
-CompanySchema.options.toObject.transform = function(company, ret) {
+utils.setToObjectTransform(CompanySchema, function(company, ret) {
     delete ret._id;
     ret.id = company._id.toString();
 
@@ -37,7 +37,7 @@ CompanySchema.options.toObject.transform = function(company, ret) {
     });
 
     return ret;
-};
+});
 
 var Company = mongoose.model("Company", CompanySchema);
 
