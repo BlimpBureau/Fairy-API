@@ -3,6 +3,7 @@
 var companiesController = require("../resources/companies/companies-controller.js");
 var usersController = require("../resources/users/users-controller.js");
 var passport = require("passport");
+var utils = require("../utils-route.js");
 
 module.exports = function(app) {
     app.post("/companies", passport.authenticate("bearer", {
@@ -10,34 +11,24 @@ module.exports = function(app) {
     }), function(req, res) {
         companiesController.create(req.body.name, req.body.organisationNumber, req.body.type, req.user.id, function(err, company) {
             if(err) {
-                res.status(400).send({
-                    error: "invalid_parameters"
-                });
-
-                return;
+                return utils.error.badRequest(res);
             }
 
             usersController.findByIds(company.admins, function(err, users) {
                 if(err || users.length !== 1) {
-                    res.status(500).send({
-                        error: "internal_server_error"
-                    });
-
-                    return;
+                    console.error(err ? err : new Error("Users.length != 1"));
+                    return utils.error.serverError(res);
                 }
 
                 var user = users[0];
 
                 user.addCompany(company.id, function(err) {
                     if(err) {
-                        res.status(500).send({
-                            error: "internal_server_error"
-                        });
-
-                        return;
+                        console.error(err);
+                        return utils.error.serverError(res);
                     }
 
-                    res.send(company.toObject());
+                    res.status(201).send(company.toObject());
                 });
             });
         });
@@ -50,19 +41,16 @@ module.exports = function(app) {
 
         companiesController.findById(req.params.id, function(err, company) {
             if(err) {
-                return res.status(500).send({
-                    error: "internal_server_error"
-                });
+                console.error(err);
+                return utils.error.serverError(res);
             }
 
             if(!company) {
-                return res.status(404).send({
-                    error: "not_found"
-                });
+                return utils.error.notFound(res);
             }
 
             if(!company.isUserAdmin(user._id)) {
-                return res.status(401).send("Not aurotharized");
+                return utils.error.notAuthorized(res);
             }
 
             res.send(company.toObject());

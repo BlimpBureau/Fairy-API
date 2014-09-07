@@ -2,6 +2,7 @@
 
 var usersController = require("../resources/users/users-controller.js");
 var passport = require("passport");
+var utils = require("../utils-route.js");
 
 module.exports = function(app) {
     app.post("/users", function(req, res) {
@@ -12,14 +13,12 @@ module.exports = function(app) {
                         error: "incorrect_client_credentials"
                     });
                 } else if(err.code === 3) {
-                    res.status(400).send({
-                        error: "username_exists"
+                    return utils.error.badRequest(res, {
+                        details: "username_exists"
                     });
                 } else {
                     console.error(err);
-                    res.status(500).send({
-                        error: "internal_server_error"
-                    });
+                    return utils.error.serverError(res);
                 }
 
                 return;
@@ -33,13 +32,11 @@ module.exports = function(app) {
         session: false
     }), function(req, res) {
         if(!req.params.id) {
-            return res.status(400).send({
-                error: "invalid_parameters"
-            });
+            return utils.error.badRequest(res);
         }
 
         if(req.user.id.toString() !== req.params.id) {
-            return res.status(401).send("Not aurotharized" + " " + req.params.id);
+            return utils.error.notAuthorized(res);
         }
 
         res.send(req.user.toObject());

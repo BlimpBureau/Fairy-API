@@ -2,6 +2,7 @@
 
 var authConfig = require("../auth-config.js");
 var passport = require("passport");
+var utils = require("../utils-route.js");
 
 module.exports = function(app) {
     app.post("/auth/local", passport.authenticate("local", {
@@ -12,7 +13,7 @@ module.exports = function(app) {
         req.user.generateAccessToken(tokenLength, expireDays, function(err, tokenObject) {
             if(err) {
                 console.error(err);
-                return res.status(500).send(err);
+                return utils.error.serverError(res);
             }
 
             res.send({
