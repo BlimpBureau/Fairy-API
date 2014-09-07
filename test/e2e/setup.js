@@ -7,8 +7,13 @@ expect = require("chai").expect;
 //Global testing object.
 test = require("./request.js");
 
-login = function(username, password, callback) {
+login = function(username, password, getProfile, callback) {
     "use strict";
+
+    if(!callback) {
+        callback = getProfile;
+        getProfile = false;
+    }
 
     test.post("/auth/local", {
         form: {
@@ -16,6 +21,12 @@ login = function(username, password, callback) {
             password: password
         }
     }, function(res) {
-        callback(res.access_token);
+        if(getProfile) {
+            return test.get("/users/" + res.user_id, res.access_token, function(user) {
+                callback(res.access_token, user);
+            });
+        }
+
+        callback(res.access_token, res.user_id);
     });
 };

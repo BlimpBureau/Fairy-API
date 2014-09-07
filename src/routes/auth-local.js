@@ -16,6 +16,7 @@ module.exports = function(app) {
             }
 
             res.send({
+                "user_id": req.user.id.toString(),
                 "access_token": tokenObject.token,
                 "access_token_expires": tokenObject.expires
             });

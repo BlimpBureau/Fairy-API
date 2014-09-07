@@ -24,6 +24,10 @@ var UserSchema = new mongoose.Schema({
             expires: Number
         }],
         default: []
+    },
+    companies: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: []
     }
 });
 
@@ -31,7 +35,13 @@ utils.setToObjectTransform(UserSchema, function(user, ret) {
     delete ret._id;
     delete ret.__v;
 
-    // ret.id = user._id.toString();
+    delete ret.password;
+
+    ret.id = user._id.toString();
+
+    ret.companies = _.map(user.companies, function(company) {
+        return company.toString();
+    });
 
     return ret;
 });
@@ -124,6 +134,20 @@ UserSchema.methods.validAccessToken = function(token, callback) {
     }
 
     callback(false, 1);
+};
+
+UserSchema.methods.addCompany = function(companyId, callback) {
+    var that = this;
+
+    this.companies.push(companyId);
+
+    this.save(function(err) {
+        if(err) {
+            return callback(err);
+        }
+
+        callback(null, that);
+    });
 };
 
 module.exports = exports = mongoose.model("User", UserSchema);

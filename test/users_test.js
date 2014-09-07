@@ -162,23 +162,29 @@ describe("User Model", function() {
         it("should return an object with model information only", function(done) {
             var user = new User({
                 username: "jane",
-                password: "fluffs",
+                password: "fluffs"
             });
 
             expect(user.toObject()).to.eql({
+                id: user.id.toString(),
                 username: user.username,
-                password: user.password,
-                accessTokens: []
+                accessTokens: [],
+                companies: []
             });
 
-            user.generateAccessToken(20, function(err, tokenObject) {
+            user.addCompany(mongoose.Types.ObjectId(), function(err, user) {
                 errcheck(err);
-                expect(user.toObject()).to.eql({
-                    username: user.username,
-                    password: user.password,
-                    accessTokens: [tokenObject]
+
+                user.generateAccessToken(20, function(err, tokenObject) {
+                    errcheck(err);
+                    expect(user.toObject()).to.eql({
+                        id: user.id.toString(),
+                        username: user.username,
+                        accessTokens: [tokenObject],
+                        companies: [user.companies[0].toString()]
+                    });
+                    done();
                 });
-                done();
             });
         });
     });

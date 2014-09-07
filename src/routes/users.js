@@ -25,23 +25,23 @@ module.exports = function(app) {
                 return;
             }
 
-            res.status(201).send({
-                username: user.username,
-                id: user._id
-            });
+            res.status(201).send(user.toObject());
         });
     });
 
-    app.get("/users/:username", passport.authenticate("bearer", {
+    app.get("/users/:id", passport.authenticate("bearer", {
         session: false
     }), function(req, res) {
-        if(req.user.username !== req.params.username) {
-            res.status(401).send("Not aurotharized");
+        if(!req.params.id) {
+            return res.status(400).send({
+                error: "invalid_parameters"
+            });
         }
 
-        res.send({
-            username: req.user.username,
-            id: req.user.id
-        });
+        if(req.user.id.toString() !== req.params.id) {
+            return res.status(401).send("Not aurotharized" + " " + req.params.id);
+        }
+
+        res.send(req.user.toObject());
     });
 };

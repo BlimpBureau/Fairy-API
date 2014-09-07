@@ -9,13 +9,14 @@ describe("/auth/local POST", function() {
                 username: "johndoe",
                 password: "mylittlepony"
             }
-        }, function() {
+        }, function(user) {
             test.post("/auth/local", {
                 form: {
                     username: "johndoe",
                     password: "mylittlepony"
                 }
             }, function(body) {
+                expect(body.user_id).to.equal(user.id);
                 expect(body.access_token).to.be.a("string");
                 expect(body.access_token).to.be.ok;
                 expect(body.access_token_expires).to.be.ok;

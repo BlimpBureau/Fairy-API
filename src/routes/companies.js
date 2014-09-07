@@ -3,7 +3,6 @@
 var companiesController = require("../resources/companies/companies-controller.js");
 var usersController = require("../resources/users/users-controller.js");
 var passport = require("passport");
-var _ = require("lodash");
 
 module.exports = function(app) {
     app.post("/companies", passport.authenticate("bearer", {
@@ -19,7 +18,7 @@ module.exports = function(app) {
             }
 
             usersController.findByIds(company.admins, function(err, users) {
-                if(err) {
+                if(err || users.length !== 1) {
                     res.status(500).send({
                         error: "internal_server_error"
                     });
@@ -27,18 +26,18 @@ module.exports = function(app) {
                     return;
                 }
 
-                var admins = _.map(users, function(user) {
-                    return {
-                        id: user._id,
-                        username: user.username
-                    };
-                });
+                var user = users[0];
 
-                res.send({
-                    name: company.name,
-                    organisationNumber: company.organisationNumber,
-                    type: company.type,
-                    admins: admins
+                user.addCompany(company.id, function(err) {
+                    if(err) {
+                        res.status(500).send({
+                            error: "internal_server_error"
+                        });
+
+                        return;
+                    }
+
+                    res.send(company.toObject());
                 });
             });
         });
@@ -49,7 +48,7 @@ module.exports = function(app) {
     }), function(req, res) {
         var user = req.user;
 
-        companiesController.findById(req.body.id, function(err, company) {
+        companiesController.findById(req.params.id, function(err, company) {
             if(err) {
                 return res.status(500).send({
                     error: "internal_server_error"

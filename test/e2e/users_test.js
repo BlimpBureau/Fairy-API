@@ -9,21 +9,22 @@ describe("/users POST", function() {
             }
         }, function(data) {
             expect(data.username).to.equal("jane");
+            expect(data.password).to.be.falsy;
             expect(data.id).to.be.ok;
             expect(data.id).to.be.a("string");
+            expect(data.companies).to.eql([]);
 
             done();
         });
     });
 });
 
-describe("/users/:username GET", function() {
-    it("should retrieve profile of username. Should only be able to access own profile if authenticated", function(done) {
-        login("jane", "sunshine", function(token) {
-            test.get("/users/jane?access_token=" + token, function(body) {
+describe("/users/:id GET", function() {
+    it("should retrieve profile of user by id. Should only be able to access own profile if authenticated", function(done) {
+        login("jane", "sunshine", function(token, id) {
+            test.get("/users/" + id, token, function(body) {
                 expect(body.username).to.equal("jane");
-                expect(body.id).to.be.a("string");
-                expect(body.id).to.be.ok;
+                expect(body.id).to.equal(id);
                 done();
             });
         });
