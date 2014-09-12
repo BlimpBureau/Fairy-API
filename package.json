@@ -32,6 +32,7 @@
     "moment": "^2.8.2",
     "mongoose": "^3.8.15",
     "passport": "^0.2.0",
+    "passport-facebook": "^1.0.3",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "winston": "^0.7.3"
