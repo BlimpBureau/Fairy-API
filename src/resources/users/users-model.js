@@ -144,11 +144,15 @@ UserSchema.methods.validAccessToken = function(token, callback) {
     callback(false, 1);
 };
 
+UserSchema.methods.isAdmin = function(companyId) {
+    return ~_.indexOf(this.companies, companyId);
+};
+
 UserSchema.methods.addCompany = function(companyId, callback) {
     var that = this;
 
-    if(~_.indexOf(this.companies, companyId)) {
-        return callback(new Error("Company ID already exists in user companies array."));
+    if(this.isAdmin(companyId)) {
+        return callback(new Error("Company ID already exists in user companies array."), this);
     }
 
     this.companies.push(companyId);

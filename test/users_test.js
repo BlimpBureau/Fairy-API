@@ -158,6 +158,47 @@ describe("User Model", function() {
         });
     });
 
+    describe("isAdmin", function() {
+        it("should return true if the user is admin of given company id", function() {
+            createDummyUser(function(user) {
+                var firstCompanyId = mongoose.Types.ObjectId();
+                var secondCompanyId = mongoose.Types.ObjectId();
+
+                user.companies.push(firstCompanyId);
+                user.companies.push(secondCompanyId);
+
+                expect(user.isAdmin(firstCompanyId)).to.be.ok;
+                expect(user.isAdmin(secondCompanyId)).to.be.ok;
+                expect(user.isAdmin(mongoose.Types.ObjectId())).to.be.falsy;
+            });
+        });
+    });
+
+    describe("addCompany", function() {
+        it("should add company ids to the user companies array", function() {
+            createDummyUser(function(user) {
+                var firstCompanyId = mongoose.Types.ObjectId();
+                var secondCompanyId = mongoose.Types.ObjectId();
+
+                user.addCompany(firstCompanyId, function(err, user) {
+                    errcheck(err);
+                    expect(user.isAdmin(firstCompanyId)).to.be.ok;
+
+                    user.addCompany(firstCompanyId, function(err, user) {
+                        expect(err).to.be.ok;
+                        expect(user.isAdmin(firstCompanyId)).to.be.ok;
+
+                        user.addCompany(secondCompanyId, function(err, user) {
+                            errcheck(err);
+                            expect(user.isAdmin(firstCompanyId)).to.be.ok;
+                            expect(user.isAdmin(secondCompanyId)).to.be.ok;
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     describe("toObject", function() {
         it("should return an object with model information only", function(done) {
             var user = new User({

@@ -62,6 +62,35 @@ describe("Company model", function() {
         });
     });
 
+    describe("addAdmin", function() {
+        it("should add admins to the company", function() {
+            var firstUserId = mongoose.Types.ObjectId();
+            var secondUserId = mongoose.Types.ObjectId();
+
+            var company = new Company({
+                name: "test",
+                organisationNumber: 131,
+                type: "HB"
+            });
+
+            company.addAdmin(firstUserId, function(err, company) {
+                errcheck(err);
+                expect(company.isUserAdmin(firstUserId)).to.equal(true);
+
+                company.addAdmin(firstUserId, function(err, company) {
+                    expect(err).to.be.ok;
+                    expect(company).to.be.falsy;
+
+                    company.addAdmin(secondUserId, function(err, company) {
+                        errcheck(err);
+                        expect(company.isUserAdmin(firstUserId)).to.equal(true);
+                        expect(company.isUserAdmin(secondUserId)).to.equal(true);
+                    });
+                });
+            });
+        });
+    });
+
     describe("toObject", function() {
         it("should return an object with model information only", function() {
             var firstUserId = mongoose.Types.ObjectId();

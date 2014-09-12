@@ -31,6 +31,10 @@ CompanySchema.methods.isUserAdmin = function(userId) {
 CompanySchema.methods.addAdmin = function(userId, callback) {
     var that = this;
 
+    if(this.isUserAdmin(userId)) {
+        return callback(new Error("Id already admin"), that);
+    }
+
     this.admins.push(userId);
     this.save(function(err) {
         callback(err, err ? null : that);

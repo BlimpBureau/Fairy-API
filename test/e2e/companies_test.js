@@ -66,3 +66,31 @@ describe("/companies/:id GET", function() {
         });
     });
 });
+
+describe("/companies/:id/admins POST", function(done) {
+    it("should be able to add admins to the company", function() {
+        login("silent bob", "clerks", true, function(bobToken, bobUser) {
+            test.post("/companies", bobToken, {
+                form: {
+                    name: "dummycomp",
+                    type: "EF",
+                    organisationNumber: 123
+                }
+            }, function(companyResponse) {
+                login("johndoe", "mrmittens", true, function(johnToken, johnUser) {
+                    test.post("/companies/" + companyResponse.id + "/admins", bobToken, {
+                        form: {
+                            id: johnUser.id
+                        }
+                    }, function(companyResponse) {
+                        expect(companyResponse.admins).to.eql([bobUser.id, johnUser.id]);
+                        test.get("/users/" + johnUser.id, johnToken, function(johnUser) {
+                            expect(johnUser.companies).to.eql([companyResponse.id]);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
