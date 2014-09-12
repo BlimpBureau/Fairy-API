@@ -55,7 +55,6 @@ describe("/companies POST", function() {
 describe("/companies/:id GET", function() {
     it("should be able to retrieve a company profile object by the given id", function(done) {
         login("silent bob", "clerks", true, function(token, user) {
-            console.log("/companies/" + user.companies[0]);
             test.get("/companies/" + user.companies[0], token, function(company) {
                 expect(company.name).to.equal("Microtech inc");
                 expect(company.id).to.equal(user.companies[0]);

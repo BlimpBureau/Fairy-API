@@ -117,4 +117,4 @@ function authCompany(req, res, next) {
 
         next();
     });
-};
+}
