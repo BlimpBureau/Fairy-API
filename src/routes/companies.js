@@ -64,6 +64,9 @@ module.exports = function(app) {
             return utils.error.badRequest(res);
         }
 
+        //TODO: This should be made more robust. Bad stuff will happen second db insertion fails.
+        //non-atomic db operation.
+
         //Check so that the id is a real user.
         usersController.findById(newId, function(err, user) {
             if(err) {
