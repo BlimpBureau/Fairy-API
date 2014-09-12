@@ -28,6 +28,15 @@ CompanySchema.methods.isUserAdmin = function(userId) {
     });
 };
 
+CompanySchema.methods.addAdmin = function(userId, callback) {
+    var that = this;
+
+    this.admins.push(userId);
+    this.save(function(err) {
+        callback(err, err ? null : that);
+    });
+};
+
 utils.setToObjectTransform(CompanySchema, function(company, ret) {
     delete ret._id;
     ret.id = company._id.toString();

@@ -7,6 +7,11 @@ var moment = require("moment");
 var _ = require("lodash");
 var utils = require("../../utils-model.js");
 
+var TokenSchema = new mongoose.Schema({
+    token: String,
+    expires: Number
+});
+
 var UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -18,17 +23,20 @@ var UserSchema = new mongoose.Schema({
         required: true
     },
     accessTokens: {
-        type: [{
-            _id: false,
-            token: String,
-            expires: Number
-        }],
+        type: [TokenSchema],
         default: []
     },
     companies: {
         type: [mongoose.Schema.Types.ObjectId],
         default: []
     }
+});
+
+utils.setToObjectTransform(TokenSchema, function(token, ret) {
+    delete ret._id;
+    delete ret.__v;
+
+    return ret;
 });
 
 utils.setToObjectTransform(UserSchema, function(user, ret) {
@@ -138,6 +146,10 @@ UserSchema.methods.validAccessToken = function(token, callback) {
 
 UserSchema.methods.addCompany = function(companyId, callback) {
     var that = this;
+
+    if(~_.indexOf(this.companies, companyId)) {
+        return callback(new Error("Company ID already exists in user companies array."));
+    }
 
     this.companies.push(companyId);
 

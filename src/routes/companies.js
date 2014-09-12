@@ -56,4 +56,65 @@ module.exports = function(app) {
             res.send(company.toObject());
         });
     });
+
+    app.post("/companies/:id/admins", utils.tokenRequired(), authCompany, function(req, res) {
+        var newId = req.body.id;
+
+        if(!newId) {
+            return utils.error.badRequest(res);
+        }
+
+        //Check so that the id is a real user.
+        usersController.findById(newId, function(err, user) {
+            if(err) {
+                console.error(err);
+                return utils.error.serverError(res);
+            }
+
+            if(!user) {
+                return utils.error.badRequest(res, {
+                    details: "unknown_user"
+                });
+            }
+
+            user.addCompany(newId, function(err) {
+                if(err) {
+                    console.error(err);
+                    return utils.error.serverError(res);
+                }
+
+                req.company.addAdmin(newId, function(err, company) {
+                    if(err) {
+                        console.error(err);
+                        return utils.error.serverError(res);
+                    }
+
+                    res.status(201).send(company.toObject());
+                });
+            });
+        });
+    });
+};
+
+function authCompany(req, res, next) {
+    var user = req.user;
+
+    companiesController.findById(req.params.id, function(err, company) {
+        if(err) {
+            console.error(err);
+            return utils.error.serverError(res);
+        }
+
+        if(!company) {
+            return utils.error.notFound(res);
+        }
+
+        if(!company.isUserAdmin(user._id)) {
+            return utils.error.notAuthorized(res);
+        }
+
+        req.company = company;
+
+        next();
+    });
 };

@@ -51,3 +51,9 @@ exports.findByIds = function(ids, callback) {
         callback(null, users);
     });
 };
+
+exports.findById = function(id, callback) {
+    User.findOne({
+        _id: id
+    }).exec(callback);
+};
