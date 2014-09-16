@@ -6,7 +6,7 @@ var utils = require("../utils-route.js");
 
 module.exports = function(app) {
     app.post("/users", function(req, res) {
-        usersController.create(req.body.username, req.body.password, function(err, user) {
+        usersController.create(req.body.firstName, req.body.lastName, req.body.email, req.body.password, function(err, user) {
             if(err) {
                 if(err.code === 1 || err.code === 2) {
                     res.status(409).send({
@@ -14,7 +14,7 @@ module.exports = function(app) {
                     });
                 } else if(err.code === 3) {
                     return utils.error.badRequest(res, {
-                        details: "username_exists"
+                        details: "email_exists"
                     });
                 } else {
                     console.error(err);

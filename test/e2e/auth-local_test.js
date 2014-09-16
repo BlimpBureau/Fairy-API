@@ -3,16 +3,18 @@
 var moment = require("moment");
 
 describe("/auth/local POST", function() {
-    it("should authenticate with username and password, to obtain an access_token", function(done) {
+    it("should authenticate with email and password, to obtain an access_token", function(done) {
         test.post("/users", {
             form: {
-                username: "johndoe",
+                firstName: "john",
+                lastName: "doe",
+                email: "jodo@compy.comp",
                 password: "mylittlepony"
             }
         }, function(user) {
             test.post("/auth/local", {
                 form: {
-                    username: "johndoe",
+                    email: "jodo@compy.comp",
                     password: "mylittlepony"
                 }
             }, function(body) {

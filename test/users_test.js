@@ -10,15 +10,27 @@ mockgoose(mongoose);
 var User = require("../src/resources/users/users-model.js");
 var usersController = require("../src/resources/users/users-controller.js");
 
-function createDummyUser(username, callback) {
+function createDummyUser(firstName, lastName, email, callback) {
     if(!callback) {
-        callback = username;
-        username = null;
+        callback = email;
+        email = null;
+    }
+
+    if(!callback) {
+        callback = lastName;
+        lastName = null;
+    }
+
+    if(!callback) {
+        callback = firstName;
+        firstName = null;
     }
 
     var user = new User({
-        username: username || "a",
-        password: "b"
+        firstName: firstName || "joe",
+        lastName: lastName || "smith",
+        email: email || "joe.smith@compy.com",
+        password: "easypeasy"
     });
 
     user.save(function(err) {
@@ -34,7 +46,9 @@ function validateHashedPassword(user, oldPassword) {
 }
 
 function validateJohnDoe(user) {
-    expect(user.username).to.equal("johndoe");
+    expect(user.firstName).to.equal("john");
+    expect(user.lastName).to.equal("doe");
+    expect(user.email).to.equal("jodo@compy.com");
     validateHashedPassword(user, "mrmittens");
 }
 
@@ -45,18 +59,24 @@ describe("User Model", function() {
 
     describe("save", function() {
         it("should hash (re)hash password on save", function(done) {
-            var username = "janedoe";
+            var firstName = "jane";
+            var lastName = "doe";
+            var email = "janedoe@some.com";
             var password = "fluffs";
 
             var user = new User({
-                username: username,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
                 password: password
             });
 
             user.save(function(err) {
                 errcheck(err);
 
-                expect(user.username).to.equal(username);
+                expect(user.firstName).to.equal(firstName);
+                expect(user.lastName).to.equal(lastName);
+                expect(user.email).to.equal(email);
                 validateHashedPassword(user, password);
 
                 var oldHash = user.password;
@@ -65,7 +85,9 @@ describe("User Model", function() {
                 user.save(function(err) {
                     errcheck(err);
 
-                    expect(user.username).to.equal(username);
+                    expect(user.firstName).to.equal(firstName);
+                    expect(user.lastName).to.equal(lastName);
+                    expect(user.email).to.equal(email);
                     validateHashedPassword(user, oldHash);
                     done();
                 });
@@ -201,14 +223,23 @@ describe("User Model", function() {
 
     describe("toObject", function() {
         it("should return an object with model information only", function(done) {
+            var firstName = "jane";
+            var lastName = "doe";
+            var email = "janedoe@some.com";
+            var password = "fluffs";
+
             var user = new User({
-                username: "jane",
-                password: "fluffs"
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password
             });
 
             expect(user.toObject()).to.eql({
                 id: user.id.toString(),
-                username: user.username,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
                 accessTokens: [],
                 companies: []
             });
@@ -220,7 +251,9 @@ describe("User Model", function() {
                     errcheck(err);
                     expect(user.toObject()).to.eql({
                         id: user.id.toString(),
-                        username: user.username,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
                         accessTokens: [tokenObject],
                         companies: [user.companies[0].toString()]
                     });
@@ -236,7 +269,7 @@ describe("Users Controller", function() {
 
     describe("create", function() {
         it("should be able to create an user", function(done) {
-            usersController.create("johndoe", "mrmittens", function(err, user) {
+            usersController.create("john", "doe", "jodo@compy.com", "mrmittens", function(err, user) {
                 if(err) {
                     throw err;
                 }
@@ -246,9 +279,9 @@ describe("Users Controller", function() {
             });
         });
 
-        it("should not be able to create two users with the same name", function(done) {
-            createDummyUser("johndoe", function() {
-                usersController.create("johndoe", "different", function(err, user) {
+        it("should not be able to create two users with the same email", function(done) {
+            createDummyUser("john", "doe", "jodo@compy.com", function() {
+                usersController.create("john2", "doe2", "jodo@compy.com", "test", function(err, user) {
                     expect(err).to.be.ok;
                     expect(user).to.not.be.ok;
                     done();
@@ -257,15 +290,15 @@ describe("Users Controller", function() {
         });
     });
 
-    describe("findByUsername", function() {
+    describe("findByEmail", function() {
         beforeEach(function(done) {
-            createDummyUser("johndoe", function() {
+            createDummyUser("john", "doe", "jodo@compy.com", function() {
                 done();
             });
         });
 
-        it("should be able to find users by username", function(done) {
-            usersController.findByUsername("johndoe", function(err, user) {
+        it("should be able to find user by email", function(done) {
+            usersController.findByEmail("jodo@compy.com", function(err, user) {
                 errcheck(err);
                 validateJohnDoe(user);
                 done();
@@ -273,7 +306,7 @@ describe("Users Controller", function() {
         });
 
         it("should behave when not finding users", function(done) {
-            usersController.findByUsername("snowman", function(err, user) {
+            usersController.findByEmail("snowyman@gmail.com", function(err, user) {
                 errcheck(err);
                 expect(user).to.be.falsy;
                 done();
@@ -286,9 +319,9 @@ describe("Users Controller", function() {
         var snowman;
 
         beforeEach(function(done) {
-            createDummyUser("snowman", function(user) {
+            createDummyUser("snow", "man", "snow@man.com", function(user) {
                 snowman = user;
-                createDummyUser("johndoe", function(user) {
+                createDummyUser("john", "doe", "jodo@compy.com", function(user) {
                     johndoe = user;
                     user.generateAccessToken(function() {
                         user.generateAccessToken(done);
@@ -324,9 +357,9 @@ describe("Users Controller", function() {
         var snowman;
 
         beforeEach(function(done) {
-            createDummyUser("snowman", function(user) {
+            createDummyUser("snow", "man", "snow@man.com", function(user) {
                 snowman = user;
-                createDummyUser("johndoe", function(user) {
+                createDummyUser("john", "doe", "jodo@compy.com", function(user) {
                     johndoe = user;
                     user.generateAccessToken(function() {
                         user.generateAccessToken(done);

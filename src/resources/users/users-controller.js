@@ -2,9 +2,11 @@
 
 var User = require("./users-model.js");
 
-exports.create = function(username, password, callback) {
+exports.create = function(firstName, lastName, email, password, callback) {
     var user = new User({
-        username: username,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
         password: password
     });
 
@@ -26,9 +28,9 @@ exports.create = function(username, password, callback) {
     });
 };
 
-exports.findByUsername = function(username, callback) {
+exports.findByEmail = function(email, callback) {
     User.findOne({
-        username: username
+        email: email
     }, callback);
 };
 

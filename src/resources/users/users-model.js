@@ -13,7 +13,15 @@ var TokenSchema = new mongoose.Schema({
 });
 
 var UserSchema = new mongoose.Schema({
-    username: {
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    email: {
         type: String,
         unique: true,
         required: true

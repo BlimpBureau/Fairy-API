@@ -55,8 +55,11 @@ exports.initFacebook = function() {
 };
 
 exports.initLocal = function() {
-    passport.use(new LocalStrategy(function(username, password, done) {
-        usersController.findByUsername(username, function(err, user) {
+    passport.use(new LocalStrategy({
+        usernameField: "email",
+        passwordField: "password"
+    }, function(email, password, done) {
+        usersController.findByEmail(email, function(err, user) {
             if(err) {
                 return done(err);
             }

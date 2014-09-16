@@ -5,18 +5,22 @@ describe("/companies POST", function() {
     var user;
 
     before(function(done) {
-        var username = "silent bob";
+        var firstName = "silent";
+        var lastName = "bob";
+        var email = "bob@clerks.com";
         var password = "clerks";
 
         test.post("/users", {
             form: {
-                username: username,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
                 password: password
             }
         }, function(userObject) {
             user = userObject;
 
-            login(username, password, function(accessToken) {
+            login(email, password, function(accessToken) {
                 token = accessToken;
                 done();
             });
@@ -54,7 +58,7 @@ describe("/companies POST", function() {
 
 describe("/companies/:id GET", function() {
     it("should be able to retrieve a company profile object by the given id", function(done) {
-        login("silent bob", "clerks", true, function(token, user) {
+        login("bob@clerks.com", "clerks", true, function(token, user) {
             test.get("/companies/" + user.companies[0], token, function(company) {
                 expect(company.name).to.equal("Microtech inc");
                 expect(company.id).to.equal(user.companies[0]);
@@ -69,7 +73,7 @@ describe("/companies/:id GET", function() {
 
 describe("/companies/:id/admins POST", function(done) {
     it("should be able to add admins to the company", function() {
-        login("silent bob", "clerks", true, function(bobToken, bobUser) {
+        login("bob@clerks.com", "clerks", true, function(bobToken, bobUser) {
             test.post("/companies", bobToken, {
                 form: {
                     name: "dummycomp",
@@ -77,7 +81,7 @@ describe("/companies/:id/admins POST", function(done) {
                     organisationNumber: 123
                 }
             }, function(companyResponse) {
-                login("johndoe", "mrmittens", true, function(johnToken, johnUser) {
+                login("jodo@compy.comp", "mrmittens", true, function(johnToken, johnUser) {
                     test.post("/companies/" + companyResponse.id + "/admins", bobToken, {
                         form: {
                             id: johnUser.id
