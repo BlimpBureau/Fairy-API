@@ -69,7 +69,10 @@ utils.setToObjectTransform(UserSchema, function(user, ret) {
     delete ret._id;
     delete ret.__v;
 
+    //Remove sensitive information.
     delete ret.password;
+    delete ret.accessTokens;
+    delete ret.verificationTokens;
 
     ret.id = user._id.toString();
 

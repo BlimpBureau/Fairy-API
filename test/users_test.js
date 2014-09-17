@@ -222,7 +222,7 @@ describe("User Model", function() {
     });
 
     describe("toObject", function() {
-        it("should return an object with model information only", function(done) {
+        it("should return an object with model non-sensitive information only", function(done) {
             var firstName = "jane";
             var lastName = "doe";
             var email = "janedoe@some.com";
@@ -243,9 +243,7 @@ describe("User Model", function() {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
-                accessTokens: [],
                 companies: [],
-                verificationTokens: [],
                 verified: false,
                 createdAt: createdAt
             });
@@ -253,7 +251,7 @@ describe("User Model", function() {
             user.addCompany(mongoose.Types.ObjectId(), function(err, user) {
                 errcheck(err);
 
-                user.generateAccessToken(20, function(err, tokenObject) {
+                user.generateAccessToken(20, function(err) {
                     errcheck(err);
 
                     var createdAt = user.createdAt;
@@ -264,9 +262,7 @@ describe("User Model", function() {
                         firstName: firstName,
                         lastName: lastName,
                         email: email,
-                        accessTokens: [tokenObject],
                         companies: [user.companies[0].toString()],
-                        verificationTokens: [],
                         verified: false,
                         createdAt: createdAt
                     });
