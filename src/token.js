@@ -7,7 +7,7 @@ exports.generate = function(length, callback) {
 
     crypto.randomBytes((length / 2) | 0, function(err, result) {
         if(err) {
-            console.error("Failed to generate random bytes for access token with node crypto module. Using fallback to generate token.");
+            console.error("Failed to generate random bytes for token with node crypto module. Using fallback to generate token.");
 
             result = uid(length);
         }
