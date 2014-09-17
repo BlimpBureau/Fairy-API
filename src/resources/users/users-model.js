@@ -119,14 +119,6 @@ UserSchema.methods.passwordMatches = function(password, callback) {
     });
 };
 
-UserSchema.methods.generateAccessToken = function(length, expireDays, callback) {
-    generateToken(this, length, expireDays, callback);
-};
-
-UserSchema.methods.validAccessToken = function(token, callback) {
-    validToken(this.accessTokens, token, callback);
-};
-
 UserSchema.methods.isAdmin = function(companyId) {
     return ~_.indexOf(this.companies, companyId);
 };
@@ -149,7 +141,23 @@ UserSchema.methods.addCompany = function(companyId, callback) {
     });
 };
 
-function generateToken(user, length, expireDays, callback) {
+UserSchema.methods.generateAccessToken = function(length, expireDays, callback) {
+    generateToken(this, this.accessTokens, length, expireDays, callback);
+};
+
+UserSchema.methods.validAccessToken = function(token, callback) {
+    validToken(this.accessTokens, token, callback);
+};
+
+UserSchema.methods.generateVerificationToken = function(length, expireDays, callback) {
+    generateToken(this, this.verificationTokens, length, expireDays, callback);
+};
+
+UserSchema.methods.validVerificationToken = function(token, callback) {
+    validToken(this.verificationTokens, token, callback);
+};
+
+function generateToken(user, tokens, length, expireDays, callback) {
     if(!callback) {
         callback = expireDays;
         expireDays = null;
@@ -169,7 +177,7 @@ function generateToken(user, length, expireDays, callback) {
             "expires": expires
         };
 
-        user.accessTokens.unshift(tokenObject);
+        tokens.unshift(tokenObject);
         user.save(function(err) {
             if(err) {
                 return callback(err);
