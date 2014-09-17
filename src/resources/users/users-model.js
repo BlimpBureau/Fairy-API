@@ -51,6 +51,10 @@ var UserSchema = new mongoose.Schema({
     verificationTokens: {
         type: [TokenSchema],
         default: []
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 

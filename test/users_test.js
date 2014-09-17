@@ -235,6 +235,9 @@ describe("User Model", function() {
                 password: password
             });
 
+            var createdAt = user.createdAt;
+            expect(createdAt).to.be.ok;
+
             expect(user.toObject()).to.eql({
                 id: user.id.toString(),
                 firstName: firstName,
@@ -243,7 +246,8 @@ describe("User Model", function() {
                 accessTokens: [],
                 companies: [],
                 verificationTokens: [],
-                verified: false
+                verified: false,
+                createdAt: createdAt
             });
 
             user.addCompany(mongoose.Types.ObjectId(), function(err, user) {
@@ -251,6 +255,10 @@ describe("User Model", function() {
 
                 user.generateAccessToken(20, function(err, tokenObject) {
                     errcheck(err);
+
+                    var createdAt = user.createdAt;
+                    expect(createdAt).to.be.ok;
+
                     expect(user.toObject()).to.eql({
                         id: user.id.toString(),
                         firstName: firstName,
@@ -259,7 +267,8 @@ describe("User Model", function() {
                         accessTokens: [tokenObject],
                         companies: [user.companies[0].toString()],
                         verificationTokens: [],
-                        verified: false
+                        verified: false,
+                        createdAt: createdAt
                     });
                     done();
                 });
