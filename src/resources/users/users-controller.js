@@ -1,6 +1,7 @@
 "use strict";
 
 var User = require("./users-model.js");
+var _ = require("lodash");
 
 exports.create = function(firstName, lastName, email, password, callback) {
     var user = new User({
@@ -34,12 +35,6 @@ exports.findByEmail = function(email, callback) {
     }, callback);
 };
 
-exports.findByAccessToken = function(token, callback) {
-    User.findOne({
-        "accessTokens.token": token
-    }, callback);
-};
-
 exports.findByIds = function(ids, callback) {
     User.find({
         _id: {
@@ -59,3 +54,15 @@ exports.findById = function(id, callback) {
         _id: id
     }).exec(callback);
 };
+
+exports.findByAccessToken =         _.partial(findByToken, "accessTokens");
+exports.findByVerificationToken =   _.partial(findByToken, "verificationTokens");
+
+function findByToken(type, token, callback) {
+    var field = type + ".token";
+
+    var findObject = {};
+    findObject[field] = token;
+
+    User.findOne(findObject, callback);
+}
