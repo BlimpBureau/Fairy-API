@@ -8,8 +8,14 @@ var _ = require("lodash");
 var utils = require("../../utils-model.js");
 
 var TokenSchema = new mongoose.Schema({
-    token: String,
-    expires: Number
+    token: {
+        type: String,
+        required: true
+    },
+    expires: {
+        type: Number,
+        default: 0
+    }
 });
 
 var UserSchema = new mongoose.Schema({
@@ -36,6 +42,14 @@ var UserSchema = new mongoose.Schema({
     },
     companies: {
         type: [mongoose.Schema.Types.ObjectId],
+        default: []
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    },
+    verificationTokens: {
+        type: [TokenSchema],
         default: []
     }
 });
@@ -99,57 +113,11 @@ UserSchema.methods.passwordMatches = function(password, callback) {
 };
 
 UserSchema.methods.generateAccessToken = function(length, expireDays, callback) {
-    if(!callback) {
-        callback = expireDays;
-        expireDays = null;
-    }
-
-    if(!callback) {
-        callback = length;
-        length = null;
-    }
-
-    expireDays = expireDays || 7;
-
-    var that = this;
-
-    accessToken.generate(length, function(token) {
-        var expires = moment().add(expireDays, "days").valueOf();
-        var tokenObject = {
-            "token": token,
-            "expires": expires
-        };
-
-        that.accessTokens.unshift(tokenObject);
-        that.save(function(err) {
-            if(err) {
-                return callback(err);
-            }
-
-            callback(null, tokenObject);
-        });
-    });
+    generateToken(this, length, expireDays, callback);
 };
 
 UserSchema.methods.validAccessToken = function(token, callback) {
-    var foundObject;
-
-    _.forEach(this.accessTokens, function(tokenObject) {
-        if(token === tokenObject.token) {
-            foundObject = tokenObject;
-            return false;
-        }
-    });
-
-    if(foundObject) {
-        if(moment(foundObject.expires).valueOf() > moment().valueOf()) {
-            return callback(true);
-        } else {
-            return callback(false, 2);
-        }
-    }
-
-    callback(false, 1);
+    validToken(this.accessTokens, token, callback);
 };
 
 UserSchema.methods.isAdmin = function(companyId) {
@@ -173,5 +141,57 @@ UserSchema.methods.addCompany = function(companyId, callback) {
         callback(null, that);
     });
 };
+
+function generateToken(user, length, expireDays, callback) {
+    if(!callback) {
+        callback = expireDays;
+        expireDays = null;
+    }
+
+    if(!callback) {
+        callback = length;
+        length = null;
+    }
+
+    expireDays  = _.isNumber(expireDays) ? expireDays : 7;
+
+    accessToken.generate(length, function(token) {
+        var expires = moment().add(expireDays, "days").valueOf();
+        var tokenObject = {
+            "token": token,
+            "expires": expires
+        };
+
+        user.accessTokens.unshift(tokenObject);
+        user.save(function(err) {
+            if(err) {
+                return callback(err);
+            }
+
+            callback(null, tokenObject);
+        });
+    });
+}
+
+function validToken(tokens, token, callback) {
+    var foundObject;
+
+    _.forEach(tokens, function(tokenObject) {
+        if(token === tokenObject.token) {
+            foundObject = tokenObject;
+            return false;
+        }
+    });
+
+    if(foundObject) {
+        if(!foundObject.expires || moment(foundObject.expires).valueOf() > moment().valueOf()) {
+            return callback(true);
+        } else {
+            return callback(false, 2);
+        }
+    }
+
+    callback(false, 1);
+}
 
 module.exports = exports = mongoose.model("User", UserSchema);

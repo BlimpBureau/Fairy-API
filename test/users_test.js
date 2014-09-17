@@ -241,7 +241,9 @@ describe("User Model", function() {
                 lastName: lastName,
                 email: email,
                 accessTokens: [],
-                companies: []
+                companies: [],
+                verificationTokens: [],
+                verified: false
             });
 
             user.addCompany(mongoose.Types.ObjectId(), function(err, user) {
@@ -255,7 +257,9 @@ describe("User Model", function() {
                         lastName: lastName,
                         email: email,
                         accessTokens: [tokenObject],
-                        companies: [user.companies[0].toString()]
+                        companies: [user.companies[0].toString()],
+                        verificationTokens: [],
+                        verified: false
                     });
                     done();
                 });
