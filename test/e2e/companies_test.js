@@ -1,29 +1,38 @@
 "use strict";
 
+function createBobAndCompany(callback) {
+    test.createUser("silent", "bob", "bob@clerks.com", "clerks", true, function(err, accessToken, userResponse) {
+        var token = accessToken;
+
+        var name = "Microtech inc";
+        var type = "EF";
+        var organisationNumber = 1337;
+        test.createCompany(name, type, organisationNumber, token, function(err, companyResponse) {
+            var company = companyResponse;
+
+            test.getUser(userResponse.id, token, function(userResponse) {
+                var user = userResponse;
+                callback(user, token, company);
+            });
+        });
+    });
+}
+
 describe("/companies POST", function() {
     var token;
     var user;
 
-    before(function(done) {
+    beforeEach(test.databaseDrop);
+    beforeEach(function(done) {
         var firstName = "silent";
         var lastName = "bob";
         var email = "bob@clerks.com";
         var password = "clerks";
 
-        test.post("/users", {
-            form: {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                password: password
-            }
-        }, function(userObject) {
-            user = userObject;
-
-            login(email, password, function(accessToken) {
-                token = accessToken;
-                done();
-            });
+        test.createUser(firstName, lastName, email, password, true, function(err, accessToken, userResponse) {
+            user = userResponse;
+            token = accessToken;
+            done();
         });
     });
 
@@ -57,43 +66,63 @@ describe("/companies POST", function() {
 });
 
 describe("/companies/:id GET", function() {
+    var user;
+    var token;
+    var company;
+
+    beforeEach(test.databaseDrop);
+    beforeEach(function(done) {
+        createBobAndCompany(function(u, t, c) {
+            user = u;
+            token = t;
+            company = c;
+            done();
+        });
+    });
+    
+
     it("should be able to retrieve a company profile object by the given id", function(done) {
-        login("bob@clerks.com", "clerks", true, function(token, user) {
-            test.get("/companies/" + user.companies[0], token, function(company) {
-                expect(company.name).to.equal("Microtech inc");
-                expect(company.id).to.equal(user.companies[0]);
-                expect(company.type).to.equal("EF");
-                expect(company.organisationNumber).to.equal(1337);
-                expect(company.admins).to.eql([user.id]);
-                done();
-            });
+        test.get("/companies/" + company.id, token, function(companyResponse) {
+            expect(companyResponse).to.eql(company);
+            done();
         });
     });
 });
 
 describe("/companies/:id/admins POST", function(done) {
-    it("should be able to add admins to the company", function() {
-        login("bob@clerks.com", "clerks", true, function(bobToken, bobUser) {
-            test.post("/companies", bobToken, {
-                form: {
-                    name: "dummycomp",
-                    type: "EF",
-                    organisationNumber: 123
-                }
-            }, function(companyResponse) {
-                login("jodo@compy.comp", "mrmittens", true, function(johnToken, johnUser) {
-                    test.post("/companies/" + companyResponse.id + "/admins", bobToken, {
-                        form: {
-                            id: johnUser.id
-                        }
-                    }, function(companyResponse) {
-                        expect(companyResponse.admins).to.eql([bobUser.id, johnUser.id]);
-                        test.get("/users/" + johnUser.id, johnToken, function(johnUser) {
-                            expect(johnUser.companies).to.eql([companyResponse.id]);
-                            done();
-                        });
-                    });
-                });
+    var bob;
+    var john;
+    var bobToken;
+    var johnToken;
+    var company;
+
+    beforeEach(test.databaseDrop);
+    beforeEach(function(done) {
+        test.createUser("john", "doe", "john@doe.com", "mrmittens", true, function(err, token, user) {
+            john = user;
+            johnToken = token;
+            done();
+        });
+    });
+    beforeEach(function(done) {
+        createBobAndCompany(function(u, t, c) {
+            bob = u;
+            bobToken = t;
+            company = c;
+            done();
+        });
+    });
+
+    it("should be able to add admins to the company", function(done) {
+        test.post("/companies/" + company.id + "/admins", bobToken, {
+            form: {
+                id: john.id
+            }
+        }, function(companyResponse) {
+            expect(companyResponse.admins).to.eql([bob.id, john.id]);
+            test.getUser(john.id, johnToken, function(john) {
+                expect(john.companies).to.eql([companyResponse.id]);
+                done();
             });
         });
     });

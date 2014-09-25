@@ -58,9 +58,10 @@ module.exports = function(app) {
     });
 
     app.post("/companies/:id/admins", utils.tokenRequired(), authCompany, function(req, res) {
-        var newId = req.body.id;
+        var companyId = req.params.id;
+        var newAdminId = req.body.id;
 
-        if(!newId) {
+        if(!newAdminId || !companyId) {
             return utils.error.badRequest(res);
         }
 
@@ -68,7 +69,7 @@ module.exports = function(app) {
         //non-atomic db operation.
 
         //Check so that the id is a real user.
-        usersController.findById(newId, function(err, user) {
+        usersController.findById(newAdminId, function(err, user) {
             if(err) {
                 console.error(err);
                 return utils.error.serverError(res);
@@ -80,13 +81,13 @@ module.exports = function(app) {
                 });
             }
 
-            user.addCompany(newId, function(err) {
+            user.addCompany(companyId, function(err) {
                 if(err) {
                     console.error(err);
                     return utils.error.serverError(res);
                 }
 
-                req.company.addAdmin(newId, function(err, company) {
+                req.company.addAdmin(newAdminId, function(err, company) {
                     if(err) {
                         console.error(err);
                         return utils.error.serverError(res);

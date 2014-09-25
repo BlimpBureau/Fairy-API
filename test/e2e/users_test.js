@@ -1,6 +1,8 @@
 "use strict";
 
 describe("/users POST", function() {
+    beforeEach(test.databaseDrop);
+
     it("should be able to create users", function(done) {
         test.post("/users", {
             form: {
@@ -24,15 +26,22 @@ describe("/users POST", function() {
 });
 
 describe("/users/:id GET", function() {
+    var user;
+    var token;
+
+    beforeEach(test.databaseDrop);
+    beforeEach(function(done) {
+        test.createUser("jane", "doe", "jane@doe.com", "sunshine", true, function(err, t, u) {
+            token = t;
+            user = u;
+            done();
+        });
+    });
+
     it("should retrieve profile of user by id. Should only be able to access own profile if authenticated", function(done) {
-        login("jane@doe.com", "sunshine", function(token, id) {
-            test.get("/users/" + id, token, function(body) {
-                expect(body.firstName).to.equal("jane");
-                expect(body.lastName).to.equal("doe");
-                expect(body.email).to.equal("jane@doe.com");
-                expect(body.id).to.equal(id);
-                done();
-            });
+        test.get("/users/" + user.id, token, function(body) {
+            expect(body).to.eql(user);
+            done();
         });
     });
 });

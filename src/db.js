@@ -3,7 +3,14 @@
 var mongoose = require("mongoose");
 var config = require("./config.js");
 
-exports.connect = function(callback) {
+var db = exports = module.exports = {};
+
+db.connect = function(drop, callback) {
+    if(!callback) {
+        callback = drop;
+        drop = false;
+    }
+
     var database = "fairy";
 
     if(config.nodeEnv === "test") {
@@ -16,15 +23,15 @@ exports.connect = function(callback) {
             return callback(err);
         }
 
-        if(mongoose.connection.readyState !== 1) {
-            return callback(new Error("Invalid mongodb connection state."));
+        if(!db.isConnected()) {
+            return callback(new Error("Invalid mongodb connection state: " + mongoose.connection.readyState));
         }
 
         console.log("Connected to database.");
 
         if(config.nodeEnv === "test") {
             console.log("Dropping database " + database + "...");
-            mongoose.connection.db.dropDatabase(function(err) {
+            db.drop(function(err) {
                 if(err) {
                     return callback(err);
                 }
@@ -36,4 +43,16 @@ exports.connect = function(callback) {
             callback();
         }
     });
+};
+
+db.isConnected = function() {
+    return mongoose.connection.readyState === 1;
+};
+
+db.drop = function(callback) {
+    if(!db.isConnected()) {
+        callback(new Error("Not connected to database."));
+    }
+
+    mongoose.connection.db.dropDatabase(callback);
 };

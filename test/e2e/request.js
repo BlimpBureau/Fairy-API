@@ -39,7 +39,7 @@ function requestRoute(type, route, token, options, callback) {
         }
 
         if(res.statusCode < 200 || res.statusCode >= 300) {
-            console.error(body);
+            console.error("Body: " + body, options);
         }
 
         expect(res.statusCode).to.be.within(200, 299);
