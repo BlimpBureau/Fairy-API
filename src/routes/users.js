@@ -14,7 +14,7 @@ module.exports = function(app) {
                     });
                 } else if(err.code === 3) {
                     return utils.error.badRequest(res, {
-                        details: "email_exists"
+                        error: "email_exists"
                     });
                 } else {
                     console.error(err);
