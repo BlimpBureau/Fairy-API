@@ -5,8 +5,11 @@ var bodyParser = require("body-parser");
 var db = require("./db.js");
 var logging = require("./logging.js");
 var auth = require("./auth.js");
+var cors = require("cors");
 
 var app = express();
+
+app.use(cors());
 
 //parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
