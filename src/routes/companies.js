@@ -9,7 +9,12 @@ module.exports = function(app) {
     app.post("/companies", passport.authenticate("bearer", {
         session: false
     }), function(req, res) {
-        companiesController.create(req.body.name, req.body.organisationNumber, req.body.type, req.user.id, function(err, company) {
+        var name = req.body.name;
+        var orgNumber = req.body.organisationNumber || req.body.orgNumber; //Short hand alias.
+        var type = req.body.type;
+        var creatorId = req.user.id;
+
+        companiesController.create(name, orgNumber, type, creatorId, function(err, company) {
             if(err) {
                 return utils.error.badRequest(res);
             }
