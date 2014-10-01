@@ -16,8 +16,7 @@ var CompanySchema = new mongoose.Schema({
     },
     organisationNumber: {
         type: Number,
-        required: true,
-        unique: true
+        required: true
     },
     admins: [mongoose.Schema.Types.ObjectId]
 });
