@@ -7,8 +7,7 @@ var utils = require("../../utils-model.js");
 var CompanySchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     type: {
         type: String,

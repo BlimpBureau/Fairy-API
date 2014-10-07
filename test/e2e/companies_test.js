@@ -39,7 +39,7 @@ describe("/companies POST", function() {
     it("should be able to create companies", function(done) {
         var name = "Microtech inc";
         var type = "EF";
-        var organisationNumber = 1337;
+        var organisationNumber = 1234567890123;
 
         test.post("/companies", token, {
             form: {
@@ -79,7 +79,6 @@ describe("/companies/:id GET", function() {
             done();
         });
     });
-    
 
     it("should be able to retrieve a company profile object by the given id", function(done) {
         test.get("/companies/" + company.id, token, function(companyResponse) {
@@ -89,7 +88,7 @@ describe("/companies/:id GET", function() {
     });
 });
 
-describe("/companies/:id/admins POST", function(done) {
+describe("/companies/:id/admins POST", function() {
     var bob;
     var john;
     var bobToken;

@@ -31,6 +31,16 @@ describe("Company model", function() {
         expect(company.name).to.equal("test");
         expect(company.organisationNumber).to.equal(131);
         expect(company.type).to.equal("HB");
+
+        company = new Company({
+            name: "test",
+            organisationNumber: 1234567890123,
+            type: "HB"
+        });
+
+        expect(company.name).to.equal("test");
+        expect(company.organisationNumber).to.equal(1234567890123);
+        expect(company.type).to.equal("HB");
     });
 
     it("constructor should validate type", function() {
@@ -128,15 +138,15 @@ describe("Companies Controller", function() {
             });
         });
 
-        it("should not allow to duplicates of name or organisation number", function(done) {
+        it("should allow two duplicates of name or organisation number", function(done) {
             create("Macrohard inc", 1337, mongoose.Types.ObjectId(), function() {
                 companiesController.create("Test", 1337, "EF", mongoose.Types.ObjectId(), function(err, company) {
-                    expect(err).to.be.ok;
-                    expect(company).to.be.falsy;
+                    expect(err).to.be.falsy;
+                    expect(company).to.be.ok;
 
-                    companiesController.create("Macrohard inc", 4124, "EF", mongoose.Types.ObjectId(), function() {
-                        expect(err).to.be.ok;
-                        expect(company).to.be.falsy;
+                    companiesController.create("Macrohard inc", 4124, "EF", mongoose.Types.ObjectId(), function(err, company) {
+                        expect(err).to.be.falsy;
+                        expect(company).to.be.ok;
                         done();
                     });
                 });
